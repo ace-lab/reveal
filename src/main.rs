@@ -3,6 +3,7 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io;
 use std::io::prelude::*;
+use std::process::Command;
 
 extern crate time;
 extern crate reqwest;
@@ -31,7 +32,14 @@ fn main() {
         println!("    <#>        - reveals the hint for problem <#>")
     } else {
         if args[1] == "submit" {
-            // TODO build zip file for submission
+            // build zip archive
+            Command::new("zip")
+                .arg("submission.zip")
+                .arg("student_code/hello.txt") // TODO replace with relevant files
+                .arg("hints/hint.record")
+                .arg("hints/transactions.log")
+                .output()
+                .expect("failed to execute process");
             
             // upload submission.zip
             let client = reqwest::Client::new();
