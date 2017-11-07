@@ -1,0 +1,7 @@
+[package]
+name = "reveal"
+version = "0.1.0"
+authors = ["Andrew Halle <ahalle@berkeley.edu>"]
+
+[dependencies]
+time = "0.1"
