@@ -3,7 +3,9 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io;
 use std::io::prelude::*;
+
 extern crate time;
+extern crate reqwest;
 
 fn log_action(log_text: String) {
     // append log_text to the log file
@@ -25,13 +27,25 @@ fn main() {
         println!("Reveal - a program for controlling computerized testing for CS169");
         println!("Andrew Halle, 2017");
         println!("Usage:");
-        println!("    initialize - creates a hint record");
         println!("    submit     - zips student code and hint record, makes http request to upload server");
         println!("    <#>        - reveals the hint for problem <#>")
     } else {
         if args[1] == "submit" {
-            // TODO submission should generate an http request
-            println!("You requested a submit action")
+            // TODO build zip file for submission
+            
+            // upload submission.zip
+            let client = reqwest::Client::new();
+            let files = match reqwest::multipart::Form::new()
+                .file("submission", "submission.zip") {
+                    Ok(f)  => f,
+                    Err(_) => panic!()
+                };
+            let res = match client.post("http://localhost:5000/")
+                .multipart(files)
+                .send() {
+                    Ok(r)  => r,
+                    Err(_) => panic!()
+                };
         } else {
             // don't reveal hint on accident
             println!("You requested to reveal a hint, are you sure you want to do that?");
