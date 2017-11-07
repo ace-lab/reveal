@@ -1,7 +1,6 @@
 use std::env;
 use std::fs::File;
 use std::fs::OpenOptions;
-use std::os::unix::fs::OpenOptionsExt;
 use std::io;
 use std::io::prelude::*;
 extern crate time;
@@ -12,7 +11,7 @@ fn log_action(log_text: String) {
         OpenOptions::new()
         .write(true)
         .append(true)
-        .open("transactions.log")
+        .open("hints/transactions.log")
         .unwrap();
     if let Err(e) = file.write_all(log_text.as_bytes()) {
         println!("{}", e);
@@ -33,34 +32,6 @@ fn main() {
         if args[1] == "submit" {
             // TODO submission should generate an http request
             println!("You requested a submit action")
-        } else if args[1] == "initialize" {
-            // don't accidentally initialize
-            println!("You requested an initialization, are you sure you want to do that?");
-            println!("This must only be done once, at the beginning of the test.");
-            println!("Continue? (y/n) ");
-            let mut control = String::new();
-            io::stdin().read_line(&mut control)
-                .expect("Failed to read line");
-            if control.trim() != "y" {
-                println!("Aborting...");
-                return;
-            }
-
-            // log the action
-            let log_text = format!("[initialize {}] reset the hint file\n", time::now().rfc822());
-            log_action(log_text);
-
-            // create the hint record
-            let mut file =
-                OpenOptions::new()
-                .create(true)
-                .write(true)
-                .mode(0o600)
-                .open("hint.record")
-                .unwrap();
-            if let Err(e) = file.write_all(b"0000") { // TODO detect how many hints there are,
-                println!("{}", e);                    //      initialize file dynamically
-            }
         } else {
             // don't reveal hint on accident
             println!("You requested to reveal a hint, are you sure you want to do that?");
@@ -83,7 +54,7 @@ fn main() {
                     log_action(log_text);
 
                     // update the hint record
-                    let mut file = match File::open("hint.record") {
+                    let mut file = match File::open("hints/hint.record") {
                         Ok(f)  => f,
                         Err(_) => panic!()
                     };
@@ -92,7 +63,7 @@ fn main() {
                         println!("{}", e);
                     }
                     let new_contents = format!("{}1{}", &contents[0..index], &contents[index+1..]);
-                    let mut file = match File::create("hint.record") {
+                    let mut file = match File::create("hints/hint.record") {
                         Ok(f)  => f,
                         Err(_) => panic!()
                     };
