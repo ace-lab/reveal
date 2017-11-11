@@ -35,20 +35,22 @@ fn main() {
         if args[1] == "initialize" {
             // prompt student for data
             print!("Name: ");
+            let _ = io::stdout().flush();
             let mut name = String::new();
             io::stdin().read_line(&mut name)
                 .expect("Failed to read name");
             print!("Student ID: ");
+            let _ = io::stdout().flush();
             let mut sid = String::new();
             io::stdin().read_line(&mut sid)
                 .expect("Failed to read SID");
 
             // log action (including name, sid)
-            let log_text = format!("[reveal initialize, {}] initialized METADATA with Name: {}, SID: {}", time::now().rfc822(), name, sid);
+            let log_text = format!("[reveal initialize, {}] initialized METADATA with Name: {}, SID: {}\n", time::now().rfc822(), name.trim(), sid.trim());
             log_action(log_text);
             
             // create METADATA file
-            let contents = format!("Name: {}\nSID: {}\n", name, sid);
+            let contents = format!("Name: {}\nSID: {}\n", name.trim(), sid.trim());
             let mut file = match File::create("admin/METADATA") {
                 Ok(f)  => f,
                 Err(_) => panic!()
