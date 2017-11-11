@@ -14,7 +14,7 @@ fn log_action(log_text: String) {
         OpenOptions::new()
         .write(true)
         .append(true)
-        .open("hints/transactions.log")
+        .open("admin/transactions.log")
         .unwrap();
     if let Err(e) = file.write_all(log_text.as_bytes()) {
         println!("{}", e);
@@ -28,32 +28,58 @@ fn main() {
         println!("Reveal - a program for controlling computerized testing for CS169");
         println!("Andrew Halle, 2017");
         println!("Usage:");
-        println!("    submit     - zips student code and hint record, makes http request to upload server");
-        println!("    <#>        - reveals the hint for problem <#>")
+        println!("    initialize - prompts student for metadata name, SID");
+        println!("    <#>        - reveals the hint for problem <#>");
+        println!("    submit     - zips student code and hint record");
     } else {
-        if args[1] == "submit" {
+        if args[1] == "initialize" {
+            // prompt student for data
+            let mut name = String::new();
+            io::stdin().read_line(&mut name)
+                .expect("Failed to read name");
+            let mut sid = String::new();
+            io::stdin().read_line(&mut sid)
+                .expect("Failed to read SID");
+
+            // log action (including name, sid)
+            let log_text = format!("[reveal initialize, {}] initialized METADATA with Name: {}, SID: {}", time::now().rfc822(), name, sid);
+            log_action(log_text);
+            
+            // create METADATA file
+            let contents = format!("Name: {}\nSID: {}\n", name, sid);
+            let mut file = match File::create("admin/METADATA") {
+                Ok(f)  => f,
+                Err(_) => panic!()
+            };
+            if let Err(e) = file.write_all(contents.as_bytes()) {
+                println!("{}", e);
+            }
+            
+        } else if args[1] == "submit" {
+            // log the action
+            let log_text = format!("[reveal submit, {}] generated a submission\n", time::now().rfc822());
+            log_action(log_text);
+            
             // build zip archive
+            let password = "password"; // TODO change this at compile time, don't commit to git repo
             Command::new("zip")
+                .arg("-P")
+                .arg(password)
                 .arg("submission.zip")
-                .arg("student_code/hello.txt") // TODO replace with relevant files
-                .arg("hints/hint.record")
-                .arg("hints/transactions.log")
+                .arg("-r")
+                .arg("student_code") // TODO replace with relevant files
+                .arg("hints")
                 .output()
                 .expect("failed to execute process");
-            
-            // upload submission.zip
-            let client = reqwest::Client::new();
-            let files = match reqwest::multipart::Form::new()
-                .file("submission", "submission.zip") {
-                    Ok(f)  => f,
-                    Err(_) => panic!()
-                };
-            let res = match client.post("http://localhost:5000/")
-                .multipart(files)
-                .send() {
-                    Ok(r)  => r,
-                    Err(_) => panic!()
-                };
+
+            // double zip
+            Command::new("zip")
+                .arg("-P")
+                .arg(password)
+                .arg("submission")
+                .arg("submission.zip")
+                .output()
+                .expect("failed to execute process");
         } else {
             // don't reveal hint on accident
             println!("You requested to reveal a hint, are you sure you want to do that?");
@@ -67,7 +93,7 @@ fn main() {
                 return;
             }
 
-            let problems = ["1a", "1b", "1c", "1d"];
+            let problems = ["1a", "1b", "1c", "1d", "1e"];
             match problems.iter().position(|&s| s == args[1]) {
                 Some(index) => {
                     // log the action
@@ -76,7 +102,7 @@ fn main() {
                     log_action(log_text);
 
                     // update the hint record
-                    let mut file = match File::open("hints/hint.record") {
+                    let mut file = match File::open("admin/hints/hint.record") {
                         Ok(f)  => f,
                         Err(_) => panic!()
                     };
@@ -85,7 +111,7 @@ fn main() {
                         println!("{}", e);
                     }
                     let new_contents = format!("{}1{}", &contents[0..index], &contents[index+1..]);
-                    let mut file = match File::create("hints/hint.record") {
+                    let mut file = match File::create("admin/hint.record") {
                         Ok(f)  => f,
                         Err(_) => panic!()
                     };
@@ -94,7 +120,7 @@ fn main() {
                     }
 
                     // output the hint
-                    let filename = format!("hints/{}.hint", args[1]);
+                    let filename = format!("admin/hints/{}.hint", args[1]);
                     let mut file = match File::open(filename) {
                         Ok(f)  => f,
                         Err(_) => panic!()
@@ -107,7 +133,8 @@ fn main() {
                 },
                 None => {
                     println!("There's no hint for that problem.");
-                    println!("Aborting...")
+                    println!("Acceptable inputs are '1a', '1b', '1c', '1d', '1e'");
+                    println!("Aborting...");
                 }
             }
         }
