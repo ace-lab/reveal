@@ -34,9 +34,11 @@ fn main() {
     } else {
         if args[1] == "initialize" {
             // prompt student for data
+            print!("Name: ");
             let mut name = String::new();
             io::stdin().read_line(&mut name)
                 .expect("Failed to read name");
+            print!("Student ID: ");
             let mut sid = String::new();
             io::stdin().read_line(&mut sid)
                 .expect("Failed to read SID");
