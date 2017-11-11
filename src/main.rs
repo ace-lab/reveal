@@ -68,18 +68,33 @@ fn main() {
                 .arg("submission.zip")
                 .arg("-r")
                 .arg("student_code") // TODO replace with relevant files
-                .arg("hints")
+                .arg("admin")
                 .output()
-                .expect("failed to execute process");
+                .expect("failed to make first zip");
 
             // double zip
+            Command::new("mkdir")
+                .arg("submission")
+                .output()
+                .expect("failed to make submission directory");
+            Command::new("mv")
+                .arg("submission.zip")
+                .output()
+                .expect("failed to move submission.zio");
             Command::new("zip")
                 .arg("-P")
                 .arg(password)
                 .arg("submission")
-                .arg("submission.zip")
+                .arg("-r")
+                .arg("submission")
                 .output()
                 .expect("failed to execute process");
+            Command::new("rm")
+                .arg("-rf")
+                .arg("submission")
+                .output()
+                .expect("failed to clean up temp folder");
+            
         } else {
             // don't reveal hint on accident
             println!("You requested to reveal a hint, are you sure you want to do that?");
@@ -102,7 +117,7 @@ fn main() {
                     log_action(log_text);
 
                     // update the hint record
-                    let mut file = match File::open("admin/hints/hint.record") {
+                    let mut file = match File::open("admin/hint.record") {
                         Ok(f)  => f,
                         Err(_) => panic!()
                     };
