@@ -79,6 +79,7 @@ fn main() {
                 .expect("failed to make submission directory");
             Command::new("mv")
                 .arg("submission.zip")
+                .arg("submission")
                 .output()
                 .expect("failed to move submission.zio");
             Command::new("zip")
