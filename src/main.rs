@@ -17,6 +17,7 @@ fn log_action(log_text: String) {
         .open("admin/transactions.log")
         .unwrap();
     if let Err(e) = file.write_all(log_text.as_bytes()) {
+        println!("Please run from the directory ~/Desktop/exam");
         println!("{}", e);
     }
 }
@@ -27,6 +28,7 @@ fn main() {
     if args.len() != 2{
         println!("Reveal - a program for controlling computerized testing for CS169");
         println!("Andrew Halle, 2017");
+        println!("Please run from the directory ~/Desktop/exam");
         println!("Usage:");
         println!("    initialize - prompts student for metadata name, SID");
         println!("    <#>        - reveals the hint for problem <#>");
@@ -53,7 +55,10 @@ fn main() {
             let contents = format!("Name: {}\nSID: {}\n", name.trim(), sid.trim());
             let mut file = match File::create("admin/METADATA") {
                 Ok(f)  => f,
-                Err(_) => panic!()
+                Err(_) => {
+                    println!("Please run from the directory ~/Desktop/exam");
+                    panic!();
+                }
             };
             if let Err(e) = file.write_all(contents.as_bytes()) {
                 println!("{}", e);
@@ -71,7 +76,7 @@ fn main() {
                 .arg(password)
                 .arg("submission.zip")
                 .arg("-r")
-                .arg("student_code") // TODO replace with relevant files
+                .arg("rottenpotatoes-rails-intro") // TODO replace with relevant files
                 .arg("admin")
                 .output()
                 .expect("failed to make first zip");
@@ -124,7 +129,10 @@ fn main() {
                     // update the hint record
                     let mut file = match File::open("admin/hint.record") {
                         Ok(f)  => f,
-                        Err(_) => panic!()
+                        Err(_) => {
+                            println!("Please run from the directory ~/Desktop/exam");
+                            panic!();
+                        }
                     };
                     let mut contents = String::new();
                     if let Err(e) = file.read_to_string(&mut contents) {
@@ -133,7 +141,10 @@ fn main() {
                     let new_contents = format!("{}1{}", &contents[0..index], &contents[index+1..]);
                     let mut file = match File::create("admin/hint.record") {
                         Ok(f)  => f,
-                        Err(_) => panic!()
+                        Err(_) => {
+                            println!("Please run from the directory ~/Desktop/exam");
+                            panic!();
+                        }
                     };
                     if let Err(e) = file.write_all(new_contents.as_bytes()) {
                         println!("{}", e);
@@ -143,7 +154,10 @@ fn main() {
                     let filename = format!("admin/hints/{}.hint", args[1]);
                     let mut file = match File::open(filename) {
                         Ok(f)  => f,
-                        Err(_) => panic!()
+                        Err(_) => {
+                            println!("Please run from the directory ~/Desktop/exam");
+                            panic!();
+                        }
                     };
                     let mut contents = String::new();
                     if let Err(e) = file.read_to_string(&mut contents) {
