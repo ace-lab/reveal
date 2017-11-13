@@ -10,12 +10,17 @@ extern crate time;
 
 fn log_action(log_text: String) {
     // append log_text to the log file
-    let mut file =
+    let mut file = match
         OpenOptions::new()
         .write(true)
         .append(true)
-        .open("admin/transactions.log")
-        .unwrap();
+        .open("admin/transactions.log") {
+            Ok(f) => f,
+            Err(_)    => {
+                println!("Please run from the directory ~/Desktop/exam");
+                panic!();
+            }
+        };
     if let Err(e) = file.write_all(log_text.as_bytes()) {
         println!("Please run from the directory ~/Desktop/exam");
         println!("{}", e);
