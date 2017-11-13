@@ -4,9 +4,9 @@ use std::fs::OpenOptions;
 use std::io;
 use std::io::prelude::*;
 use std::process::Command;
+use std::path::Path;
 
 extern crate time;
-extern crate reqwest;
 
 fn log_action(log_text: String) {
     // append log_text to the log file
@@ -68,7 +68,14 @@ fn main() {
             // log the action
             let log_text = format!("[reveal submit, {}] generated a submission\n", time::now().rfc822());
             log_action(log_text);
-            
+
+            // make sure METADATA exists
+            let md = Path::new("admin/METADATA");
+            if !md.exists() {
+                println!("Please run `reveal initialize` before submitting.");
+                println!("Aborting...");
+                panic!();
+            }
             // build zip archive
             let password = "password"; // TODO change this at compile time, don't commit to git repo
             Command::new("zip")
@@ -108,7 +115,7 @@ fn main() {
         } else {
             // don't reveal hint on accident
             println!("You requested to reveal a hint, are you sure you want to do that?");
-            println!("You will lose all credit for this question.");
+            println!("You will lose 75% of the credit for this question.");
             println!("Continue? (y/n) ");
             let mut control = String::new();
             io::stdin().read_line(&mut control)
@@ -118,7 +125,7 @@ fn main() {
                 return;
             }
 
-            let problems = ["1a", "1b", "1c", "1d", "1e"];
+            let problems = ["1.1"];
             match problems.iter().position(|&s| s == args[1]) {
                 Some(index) => {
                     // log the action
@@ -167,7 +174,7 @@ fn main() {
                 },
                 None => {
                     println!("There's no hint for that problem.");
-                    println!("Acceptable inputs are '1a', '1b', '1c', '1d', '1e'");
+                    println!("Acceptable inputs are '1.1'");
                     println!("Aborting...");
                 }
             }
