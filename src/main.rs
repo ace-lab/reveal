@@ -82,7 +82,7 @@ fn main() {
                 panic!();
             }
             // build zip archive
-            let password = "password"; // TODO change this at compile time, don't commit to git repo
+            let password = "[)#]7p@9T_urm9B@"; // TODO change this at compile time, don't commit to git repo
             Command::new("zip")
                 .arg("-P")
                 .arg(password)
@@ -130,7 +130,7 @@ fn main() {
                 return;
             }
 
-            let problems = ["1.1"];
+            let problems = ["1.1", "1.2", "1.3", "1.4", "2.1", "2.2", "2.3", "2.4", "3.1", "3.2", "3.3", "3.4", "4.1", "5.1", "5.2", "5.3"];
             match problems.iter().position(|&s| s == args[1]) {
                 Some(index) => {
                     // log the action
