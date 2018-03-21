@@ -130,6 +130,7 @@ fn main() {
                 return;
             }
 
+            // TODO replace with list of hint files
             let problems = ["1.1", "1.2", "1.3", "1.4", "2.1", "2.2", "2.3", "2.4", "3.1", "3.2", "3.3", "3.4", "4.1", "5.1", "5.2", "5.3"];
             match problems.iter().position(|&s| s == args[1]) {
                 Some(index) => {
@@ -179,7 +180,7 @@ fn main() {
                 },
                 None => {
                     println!("There's no hint for that problem.");
-                    println!("Acceptable inputs are '1.1'");
+                    println!("Acceptable inputs are '1.1'");             // TODO replace with list of acceptable hints
                     println!("Aborting...");
                 }
             }
